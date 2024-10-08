@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Detail</title>
+</head>
+
+<body>
+    <h1>Order #{{ order.id }}</h1>
+    <p>Product: {{ order.product.name }}</p>
+    <p>Quantity: {{ order.quantity }}</p>
+    <p>Status: {{ order.get_status_display }}</p>
+    <p>Order Date: {{ order.order_date }}</p>
+
+    <a href="{% url 'order_summary' %}">Back to Order Summary</a>
+</body>
+
+</html>

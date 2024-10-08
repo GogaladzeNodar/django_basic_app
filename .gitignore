@@ -1,0 +1,52 @@
+# Python compiled files
+*.pyc
+*.pyo
+__pycache__/
+
+# Virtual environment
+venv/
+.env
+*.env
+
+# Django specific
+*.log
+*.pot
+*.pyc
+*.pyo
+__pycache__/
+
+instance/
+media/
+
+
+
+# Static files
+staticfiles/
+static/
+
+# Local development settings
+/local_settings.py
+
+# MacOS specific
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+
+# Node modules (if you're using npm/yarn for frontend)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Coverage reports
+htmlcov/
+.coverage
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# pytest
+.cache/
