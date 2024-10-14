@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>{{ product.name }}</h1>
+
+    <div>
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-width: 300px; height: auto;">
+    </div>
+
+    <p><strong>description:</strong> {{ product.description }}</p>
+    <p><strong>price:</strong> {{ product.price|floatformat:2 }}</p>
+    <p><strong>stock:</strong> {{ product.stock }}</p>
+    <p><strong>categories:</strong>
+        {% for category in product.categories.all %}
+        {{ category.name }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    </p>
+    <p><strong>created at:</strong> {{ product.created_at }}</p>
+    <p><strong>last updated:</strong> {{ product.updated_at }}</p>
+
+    <a href="{% url 'category_list' %}">Back to category list</a>
+
+</body>
+
+</html>

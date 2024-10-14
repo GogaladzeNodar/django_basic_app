@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from .models import Product, Category
-from django.db.models import Avg
+from django.db.models import Max, Min, Avg, Sum, F
 
 
 """შექმენით 2 ვიუ და შესაბამისად განუსაზღვრეთ მისამართებიც(urls),
@@ -65,33 +65,37 @@ def category_list(request):
 def category_products(request, category_id):
 
     category = get_object_or_404(Category, id=category_id)
+    descendant_categories = category.get_descendants(include_self=True)
 
-    descendants = category.children.all()
+    products = Product.objects.filter(categories__in=descendant_categories).distinct()
 
-    products = Product.objects.filter(
-        categories__in=[category] + list(descendants)
-    ).distinct()
+    for product in products:
+        product.total_value = product.price * product.stock
 
     paginator = Paginator(products, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    max_price = products.order_by("-price").first().price if products.exists() else 0
-    min_price = products.order_by("price").first().price if products.exists() else 0
-    avg_price = products.aggregate(average_price=Avg("price"))["average_price"] or 0
-    total_value = sum([product.price * product.stock for product in products])
+    stats = products.aggregate(
+        max_price=Max("price"),
+        min_price=Min("price"),
+        avg_price=Avg("price"),
+        total_value=Sum(F("price") * F("stock")),
+    )
 
     context = {
         "category": category,
-        "page_obj": page_obj,
-        "max_price": max_price,
-        "min_price": min_price,
-        "avg_price": avg_price,
-        "total_value": total_value,
+        "products": page_obj,
+        "stats": stats,
     }
     return render(request, "store/category_products.html", context)
 
 
 def product_detail(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    return render(request, "store/product_detail.html", {"product": product})
+
+    context = {
+        "product": product,
+    }
+
+    return render(request, "store/products_detail.html", context)

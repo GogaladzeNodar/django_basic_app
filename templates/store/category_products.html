@@ -8,44 +8,59 @@
 </head>
 
 <body>
-    <h1>Products in {{ category.name }}</h1>
+    <h1>products in {{ category.name }}</h1>
 
-    <ul>
-        {% for product in page_obj %}
-        <li>
-            <a href="{% url 'product_detail' product.id %}">{{ product.name }}</a> -
-            Total value: {{ product.price|floatformat:2 }} * {{ product.stock }} = {{
-            product.price|mul:product.stock|floatformat:2 }}
-        </li>
+    <table>
+        <thead>
+            <tr>
+                <th>product name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td><a href="{% url 'products_detail' product.id %}">{{ product.name }}</a></td>
+                <td> price - {{ product.price|floatformat:2 }} | quantity - {{ product.stock }} |
+                    total_value {{product.total_value|floatformat:2 }}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2">no products category.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-
-        {% endfor %}
-    </ul>
-
+    <div>
+        <h3>category statistics</h3>
+        <ul>
+            <li>most expensive product: {{ stats.max_price|floatformat:2 }}</li>
+            <li>cheapest product: {{ stats.min_price|floatformat:2 }}</li>
+            <li>average product price: {{ stats.avg_price|floatformat:2 }}</li>
+            <li>total value of products (including stock): {{ stats.total_value|floatformat:2 }}</li>
+        </ul>
+    </div>
 
     <div class="pagination">
         <span class="step-links">
-            {% if page_obj.has_previous %}
+            {% if products.has_previous %}
             <a href="?page=1">&laquo; first</a>
-            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            <a href="?page={{ products.previous_page_number }}">previous</a>
             {% endif %}
 
             <span class="current">
-                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                Page {{ products.number }} of {{ products.paginator.num_pages }}.
             </span>
 
-            {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">next</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% if products.has_next %}
+            <a href="?page={{ products.next_page_number }}">next</a>
+            <a href="?page={{ products.paginator.num_pages }}">last &raquo;</a>
             {% endif %}
         </span>
     </div>
 
-    <h2>Statistics</h2>
-    <p>Max price: {{ max_price }}</p>
-    <p>Min price: {{ min_price }}</p>
-    <p>Average price: {{ avg_price }}</p>
-    <p>Total value of products: {{ total_value }}</p>
+
 
 
 </body>
