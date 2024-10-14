@@ -1,6 +1,9 @@
-from django.shortcuts import render, get_list_or_404
+from django.shortcuts import render, get_object_or_404
+from django.core.paginator import Paginator
 from django.http import JsonResponse
 from .models import Product, Category
+from django.db.models import Avg
+
 
 """შექმენით 2 ვიუ და შესაბამისად განუსაზღვრეთ მისამართებიც(urls),
  ერთი view პასუხისმგებელი უნდა იყოს ყველა კატეგორიის ინფორმაციის დაბრუნებაზე, (კატეგორიას წამოყვეს თავისი მშობელი კატეგორიები, 
@@ -25,16 +28,6 @@ def AllCategoryView(request):
     return JsonResponse(categories)
 
 
-#     name = (models.CharField(max_length=255),)
-#     parent = TreeForeignKey(
-#         "self", on_delete=models.CASCADE, null=True, blank=True, related_name="children"
-#     )
-#     description = models.TextField(blank=True, null=True)
-#     is_active = models.BooleanField(default=True)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
-
-
 def AllProductsView(request):
 
     products = {}
@@ -54,11 +47,51 @@ def AllProductsView(request):
     return JsonResponse(products)
 
 
-#     name = models.CharField(max_length=200, null=False, blank=False)
-#     categories = models.ManyToManyField(Category, related_name="products")
-#     description = models.TextField()
-#     price = models.DecimalField(max_digits=10, decimal_places=2)
-#     image = models.ImageField(upload_to="images/products/")
-#     stock = models.IntegerField()
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
+def category_list(request):
+    categories = Category.objects.filter(parent__isnull=True)
+
+    for category in categories:
+        category.product_count = Product.objects.filter(
+            categories__in=category.get_descendants(include_self=True)
+        ).count()
+
+    context = {
+        "categories": categories,
+    }
+
+    return render(request, "store/category_list.html", context)
+
+
+def category_products(request, category_id):
+
+    category = get_object_or_404(Category, id=category_id)
+
+    descendants = category.children.all()
+
+    products = Product.objects.filter(
+        categories__in=[category] + list(descendants)
+    ).distinct()
+
+    paginator = Paginator(products, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    max_price = products.order_by("-price").first().price if products.exists() else 0
+    min_price = products.order_by("price").first().price if products.exists() else 0
+    avg_price = products.aggregate(average_price=Avg("price"))["average_price"] or 0
+    total_value = sum([product.price * product.stock for product in products])
+
+    context = {
+        "category": category,
+        "page_obj": page_obj,
+        "max_price": max_price,
+        "min_price": min_price,
+        "avg_price": avg_price,
+        "total_value": total_value,
+    }
+    return render(request, "store/category_products.html", context)
+
+
+def product_detail(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    return render(request, "store/product_detail.html", {"product": product})
