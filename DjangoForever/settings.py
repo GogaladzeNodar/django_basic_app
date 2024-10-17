@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "debug_toolbar",
+    "user",
     "order",
     "store",
 ]
@@ -121,6 +122,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
+
+AUTH_USER_MODEL = "user.CustomUser"
+
 
 STATIC_URL = "/static/"
 MEDIA_URL = "/media/"
