@@ -23,3 +23,13 @@ class Order(models.Model):
 
     def __str__(self):
         return f"{self.user} order {self.product}"
+
+
+"""
+order app ში(ჯანგოს პირველ დავალებაში იყო შექმნა მოთხოვნილი) შექმენით ახალი მოდელი UserCart 
+და დააკავშირეთ თქვენს მიერ შექმნილ იუზერის მოდელთან O2O კავშირით(OneToOne), კალათის სხვა ველები ამ ეტაპზე საჭირო არ არის.
+"""
+
+
+class UserCart(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
