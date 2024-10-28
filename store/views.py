@@ -1,8 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from .models import Product, Category
-from django.db.models import Max, Min, Avg, Sum, F
+from store.models import Product, Category
+from django.db.models import Max, Min, Avg, Sum, F, Count
 
 
 """შექმენით 2 ვიუ და შესაბამისად განუსაზღვრეთ მისამართებიც(urls),
@@ -48,17 +48,14 @@ def AllProductsView(request):
 
 
 def category_list(request):
-    categories = Category.objects.filter(parent__isnull=True)
 
-    for category in categories:
-        category.product_count = Product.objects.filter(
-            categories__in=category.get_descendants(include_self=True)
-        ).count()
+    categories = Category.objects.filter(parent__isnull=True).annotate(
+        product_count=Count("products")
+    )
 
     context = {
         "categories": categories,
     }
-
     return render(request, "store/category_list.html", context)
 
 
@@ -92,10 +89,16 @@ def category_products(request, category_id):
 
 
 def product_detail(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
+    product = get_object_or_404(
+        Product.objects.prefetch_related("categories"), id=product_id
+    )
 
     context = {
         "product": product,
     }
 
     return render(request, "store/products_detail.html", context)
+
+
+def contact(request):
+    return render(request, "store/contact.html")

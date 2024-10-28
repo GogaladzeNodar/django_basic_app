@@ -3,7 +3,7 @@ from .models import Order, UserCart
 
 # Register your models here.
 # admin.site.register(Order)
-# admin.site.register(UserCart)
+admin.site.register(UserCart)
 
 
 def mark_as_completed(modeladmin, request, queryset):

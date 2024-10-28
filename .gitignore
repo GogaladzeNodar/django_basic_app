@@ -21,8 +21,8 @@ media/
 
 
 # Static files
-staticfiles/
-static/
+# staticfiles/
+# static/
 
 # Local development settings
 /local_settings.py
